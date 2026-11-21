@@ -1,0 +1,39 @@
+name: Fork validation - OSC dispatch issue 300
+
+on:
+  push:
+    branches:
+      - fix/300-safe-osc-dispatch
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-osc-parser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Select Rust stable
+        run: |
+          rustup update stable
+          rustup default stable
+          rustup component add rustfmt clippy
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Test parser with default features
+        run: cargo test -p anstyle-parse --locked
+      - name: Test parser with all features
+        run: cargo test -p anstyle-parse --all-features --locked
+      - name: Test parser without default features
+        run: cargo test -p anstyle-parse --no-default-features --locked
+      - name: Test parser core-only mode
+        run: cargo test -p anstyle-parse --no-default-features --features core --locked
+      - name: Clippy strict
+        run: cargo clippy -p anstyle-parse --all-targets --all-features --locked -- -D warnings
+      - name: Workspace tests
+        run: cargo test --workspace --locked
