@@ -37,8 +37,6 @@
 #[cfg(not(feature = "core"))]
 extern crate alloc;
 
-use core::mem::MaybeUninit;
-
 #[cfg(feature = "core")]
 use arrayvec::ArrayVec;
 #[cfg(feature = "utf8")]
@@ -168,23 +166,16 @@ where
     }
 
     /// Separate method for `osc_dispatch` that borrows self as read-only
-    ///
-    /// The aliasing is needed here for multiple slices into `self.osc_raw`
     #[inline]
     fn osc_dispatch<P: Perform>(&self, performer: &mut P, byte: u8) {
-        let mut slices: [MaybeUninit<&[u8]>; MAX_OSC_PARAMS] =
-            unsafe { MaybeUninit::uninit().assume_init() };
+        let mut slices: [&[u8]; MAX_OSC_PARAMS] = [&[]; MAX_OSC_PARAMS];
 
         for (i, slice) in slices.iter_mut().enumerate().take(self.osc_num_params) {
             let indices = self.osc_params[i];
-            *slice = MaybeUninit::new(&self.osc_raw[indices.0..indices.1]);
+            *slice = &self.osc_raw[indices.0..indices.1];
         }
 
-        unsafe {
-            let num_params = self.osc_num_params;
-            let params = &slices[..num_params] as *const [MaybeUninit<&[u8]>] as *const [&[u8]];
-            performer.osc_dispatch(&*params, byte == 0x07);
-        }
+        performer.osc_dispatch(&slices[..self.osc_num_params], byte == 0x07);
     }
 
     #[inline]
