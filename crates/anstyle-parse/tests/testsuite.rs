@@ -177,6 +177,18 @@ fn gen_empty_osc() -> (Vec<u8>, Dispatcher) {
 
 advance!(advance_empty_osc, gen_empty_osc);
 
+fn gen_osc_mixed_empty_params() -> (Vec<u8>, Dispatcher) {
+    let input = b"\x1b]2;first;;last\x07".to_vec();
+    let expected = start()
+        + Sequence::Osc(
+            vec![b"2".to_vec(), b"first".to_vec(), vec![], b"last".to_vec()],
+            true,
+        );
+    (input, expected)
+}
+
+advance!(advance_osc_mixed_empty_params, gen_osc_mixed_empty_params);
+
 fn gen_osc_max_params() -> (Vec<u8>, Dispatcher) {
     let params = ";".repeat(MAX_PARAMS + 1);
     let input = format!("\x1b]{}\x1b", &params[..]).into_bytes();
