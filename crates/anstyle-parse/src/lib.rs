@@ -168,14 +168,14 @@ where
     /// Separate method for `osc_dispatch` that borrows self as read-only
     #[inline]
     fn osc_dispatch<P: Perform>(&self, performer: &mut P, byte: u8) {
-        let mut slices: [&[u8]; MAX_OSC_PARAMS] = [&[]; MAX_OSC_PARAMS];
+        let mut params: [&[u8]; MAX_OSC_PARAMS] = [b""; MAX_OSC_PARAMS];
 
-        for (i, slice) in slices.iter_mut().enumerate().take(self.osc_num_params) {
+        for (i, param) in params.iter_mut().enumerate().take(self.osc_num_params) {
             let indices = self.osc_params[i];
-            *slice = &self.osc_raw[indices.0..indices.1];
+            *param = &self.osc_raw[indices.0..indices.1];
         }
 
-        performer.osc_dispatch(&slices[..self.osc_num_params], byte == 0x07);
+        performer.osc_dispatch(&params[..self.osc_num_params], byte == 0x07);
     }
 
     #[inline]
