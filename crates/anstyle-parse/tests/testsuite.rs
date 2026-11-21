@@ -189,6 +189,23 @@ fn gen_osc_mixed_empty_params() -> (Vec<u8>, Dispatcher) {
 
 advance!(advance_osc_mixed_empty_params, gen_osc_mixed_empty_params);
 
+fn gen_osc_trailing_empty_param() -> (Vec<u8>, Dispatcher) {
+    let input = b"\x1b]2;first;\x07".to_vec();
+    let expected = start()
+        + Sequence::Osc(vec![b"2".to_vec(), b"first".to_vec(), vec![]], true);
+    (input, expected)
+}
+
+advance!(advance_osc_trailing_empty_param, gen_osc_trailing_empty_param);
+
+fn gen_osc_exact_max_params() -> (Vec<u8>, Dispatcher) {
+    let input = format!("\x1b]{}\x07", vec!["x"; MAX_OSC_PARAMS].join(";")).into_bytes();
+    let expected = start() + Sequence::Osc(vec![b"x".to_vec(); MAX_OSC_PARAMS], true);
+    (input, expected)
+}
+
+advance!(advance_osc_exact_max_params, gen_osc_exact_max_params);
+
 fn gen_osc_max_params() -> (Vec<u8>, Dispatcher) {
     let params = ";".repeat(MAX_PARAMS + 1);
     let input = format!("\x1b]{}\x1b", &params[..]).into_bytes();
