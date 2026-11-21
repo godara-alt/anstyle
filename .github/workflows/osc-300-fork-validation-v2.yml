@@ -1,0 +1,35 @@
+name: OSC safe dispatch follow-up validation
+
+on:
+  push:
+    branches:
+      - fix/300-safe-osc-dispatch
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Rust formatting, Clippy and tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Formatting
+        run: cargo fmt --all -- --check
+      - name: Parser tests (default)
+        run: cargo test -p anstyle-parse@1.0.0
+      - name: Parser tests (all features)
+        run: cargo test -p anstyle-parse@1.0.0 --all-features
+      - name: Parser tests (no default features)
+        run: cargo test -p anstyle-parse@1.0.0 --no-default-features
+      - name: Parser tests (core only)
+        run: cargo test -p anstyle-parse@1.0.0 --no-default-features --features core
+      - name: Strict Clippy
+        run: cargo clippy -p anstyle-parse@1.0.0 --all-targets --all-features -- -D warnings
+      - name: Workspace tests
+        run: cargo test --workspace
