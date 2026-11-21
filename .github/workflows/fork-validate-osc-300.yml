@@ -26,14 +26,14 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all -- --check
       - name: Test parser with default features
-        run: cargo test -p anstyle-parse --locked
+        run: cargo test -p anstyle-parse@1.0.0 --locked
       - name: Test parser with all features
-        run: cargo test -p anstyle-parse --all-features --locked
+        run: cargo test -p anstyle-parse@1.0.0 --all-features --locked
       - name: Test parser without default features
-        run: cargo test -p anstyle-parse --no-default-features --locked
+        run: cargo test -p anstyle-parse@1.0.0 --no-default-features --locked
       - name: Test parser core-only mode
-        run: cargo test -p anstyle-parse --no-default-features --features core --locked
+        run: cargo test -p anstyle-parse@1.0.0 --no-default-features --features core --locked
       - name: Clippy strict
-        run: cargo clippy -p anstyle-parse --all-targets --all-features --locked -- -D warnings
+        run: cargo clippy -p anstyle-parse@1.0.0 --all-targets --all-features --locked -- -D warnings
       - name: Workspace tests
         run: cargo test --workspace --locked
